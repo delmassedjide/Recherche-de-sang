@@ -1,7 +1,7 @@
 
 <body class="container py-5">
 
-    <h2>✏️ Modifier un stock</h2>
+    <h2>Modifier un stock</h2>
 
     <form method="POST" action="/sang/public/stock/update/<?= $stock['id'] ?>" class="row g-3 mt-4">
         <div class="col-md-6">
@@ -32,7 +32,7 @@
         </div>
 
         <div class="col-12">
-            <button class="btn btn-success">✅ Enregistrer</button>
+            <button class="btn btn-success">Enregistrer</button>
             <a href="/sang/public/stock/gerer" class="btn btn-secondary">Retour</a>
         </div>
     </form>

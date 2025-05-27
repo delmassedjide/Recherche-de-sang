@@ -24,7 +24,7 @@ $current = $_SERVER['REQUEST_URI'];
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-light bg-light px-4">
-    <a class="navbar-brand fw-bold" href="/sang/public/home">🩸 Plateforme</a>
+    <a class="navbar-brand fw-bold" href="/sang/public/home">Plateforme</a>
     <div class="collapse navbar-collapse">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
 

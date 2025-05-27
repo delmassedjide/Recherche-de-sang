@@ -1,6 +1,6 @@
 
     <?php $pageTitle = "Dashboard GBS"; include __DIR__. '/../partials/header.php'; ?>
-    <h2>📋 Mes demandes de sang</h2>
+    <h2>Mes demandes de sang</h2>
 
     <?php if (count($demandes) > 0): ?>
         <table class="table table-bordered mt-4">
@@ -31,7 +31,7 @@
         </table>
 
     <?php else: ?>
-        <p class="text-muted mt-4">Aucune demande effectuée pour l’instant.</p>
+        <p class="text-muted mt-4">Aucune demande effectuée pour l'instant.</p>
     <?php endif; ?>
 
 

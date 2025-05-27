@@ -27,7 +27,7 @@ class UserController extends Controller {
                 'adresse_rue' => $_POST['adresse_rue']
             ]);
     
-            // ✅ Redirection après inscription
+            // Redirection après inscription
             header('Location: /sang/public/user/login');
             exit;
         }

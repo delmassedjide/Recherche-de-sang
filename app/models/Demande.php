@@ -71,18 +71,21 @@ class Demande {
         $this->db->commit();
     }
 
-    public function getDemandesProches($num_centre) {
-        $stmt = $this->db->prepare("SELECT d.id_demande, d.libelle, d.date_demande, dem.nom, dem.prenom, ds.qte, gs.ref_sang
-            FROM demandes d
-            JOIN users dem ON d.id_demandeur = dem.id
-            JOIN demander ds ON ds.id_demande = d.id_demande
-            JOIN groupes_sanguins gs ON gs.ref_sang = ds.ref_sang
-            WHERE ds.ref_sang IN (
-                SELECT ref_sang FROM stocks WHERE num_centre = ?
-            ) AND d.statut = 'en attente'
-            ORDER BY d.date_demande DESC");
-        $stmt->execute([$num_centre]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    public function getDemandesRecues($num_centre) {
+    $db = Database::getConnection();
+
+    $stmt = $db->prepare("
+        SELECT d.id_demande, d.date_demande, d.libelle, dm.qte, dm.ref_sang, d.statut,
+               u.nom, u.prenom
+        FROM demandes d
+        JOIN demander dm ON d.id_demande = dm.id_demande
+        JOIN users u ON d.id_demandeur = u.id
+        WHERE dm.num_centre = ? AND d.statut = 'en attente'
+        ORDER BY d.date_demande DESC
+    ");
+    $stmt->execute([$num_centre]);
+
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function validerDemande($id_demande) {
@@ -90,19 +93,34 @@ class Demande {
         $stmt->execute([$id_demande]);
     }
 
-    public function getHistoriqueGbs($num_centre) {
-        $stmt = $this->db->prepare("SELECT d.id_demande, d.libelle, d.date_demande, d.date_validation, u.nom, u.prenom, ds.qte, gs.ref_sang
-            FROM demandes d
-            JOIN users u ON d.id_demandeur = u.id
-            JOIN demander ds ON ds.id_demande = d.id_demande
-            JOIN groupes_sanguins gs ON gs.ref_sang = ds.ref_sang
-            WHERE d.statut = 'validée'
-            AND ds.ref_sang IN (
-                SELECT ref_sang FROM stocks WHERE num_centre = ?
-            )
-            ORDER BY d.date_demande DESC");
-        $stmt->execute([$num_centre]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    public function getHistoriqueGbs($num_centre, $periode = 'all') {
+    $sql = "
+        SELECT d.id_demande, d.libelle, d.date_demande, d.date_validation, 
+               u.nom, u.prenom, dm.qte, gs.ref_sang
+        FROM demandes d
+        JOIN users u ON d.id_demandeur = u.id
+        JOIN demander dm ON dm.id_demande = d.id_demande
+        JOIN groupes_sanguins gs ON gs.ref_sang = dm.ref_sang
+        WHERE d.statut = 'validée'
+        AND dm.ref_sang IN (
+            SELECT ref_sang FROM stocks WHERE num_centre = :num_centre
+        )
+    ";
+
+    // Ajouter condition selon la période
+    if ($periode === 'today') {
+        $sql .= " AND DATE(d.date_validation) = CURDATE()";
+    } elseif ($periode === '7days') {
+        $sql .= " AND d.date_validation >= DATE_SUB(NOW(), INTERVAL 7 DAY)";
+    } elseif ($periode === '30days') {
+        $sql .= " AND d.date_validation >= DATE_SUB(NOW(), INTERVAL 30 DAY)";
+    }
+
+    $sql .= " ORDER BY d.date_validation DESC";
+
+    $stmt = $this->db->prepare($sql);
+    $stmt->execute(['num_centre' => $num_centre]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function getDemandesParCentre($num_centre) {
@@ -126,5 +144,25 @@ class Demande {
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$num_centre]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function countDemandesEnAttente($num_centre) {
+    $stmt = $this->db->prepare("SELECT COUNT(*) FROM demandes d
+        JOIN demander dm ON d.id_demande = dm.id_demande
+        WHERE d.statut = 'en attente' AND dm.num_centre = ?");
+    $stmt->execute([$num_centre]);
+    return $stmt->fetchColumn();
+    }
+
+    public function countDemandesValideesRecentes($num_centre) {
+    $stmt = $this->db->prepare("
+        SELECT COUNT(*) FROM demandes d
+        JOIN demander dm ON d.id_demande = dm.id_demande
+        WHERE dm.num_centre = ? 
+        AND d.statut = 'validée' 
+        AND d.date_validation >= DATE_SUB(NOW(), INTERVAL 1 DAY)
+    ");
+    $stmt->execute([$num_centre]);
+    return $stmt->fetchColumn();
     }
 }

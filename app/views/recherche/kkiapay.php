@@ -30,7 +30,7 @@ $callback = "http://localhost/sang/public/recherche/confirmer?ref_sang=" . urlen
 ?>
 
 
-<h2 class="mb-4">💳 Paiement via Kkiapay</h2>
+<h2 class="mb-4">Paiement via Kkiapay</h2>
 <p>Montant total à payer : <strong><?= $montant ?> FCFA</strong></p>
 
 <!-- Conteneur utile pour le widget -->

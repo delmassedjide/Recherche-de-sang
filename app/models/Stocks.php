@@ -67,14 +67,14 @@ class Stocks {
     }
 
     public function rechercherCentresDisponibles($groupe) {
-        $stmt = $this->db->prepare("
-            SELECT c.nom, c.adresse, c.latitude, c.longitude, c.num_centre, s.nbr_poche
-            FROM stocks s
-            JOIN centres c ON c.num_centre = s.num_centre
-            WHERE s.ref_sang = ? AND s.nbr_poche > 0
-        ");
-        $stmt->execute([$groupe]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $stmt = $this->db->prepare("
+        SELECT c.nom, c.adresse, c.latitude, c.longitude, c.num_centre, s.nbr_poche, s.ref_sang
+        FROM stocks s
+        JOIN centres c ON c.num_centre = s.num_centre
+        WHERE s.ref_sang = ? AND s.nbr_poche > 0
+    ");
+    $stmt->execute([$groupe]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function countByGroupPrefix($prefix) {

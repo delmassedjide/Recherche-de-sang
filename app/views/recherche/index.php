@@ -89,8 +89,8 @@
 <header>
   <h1>Blood Search</h1>
   <div class="top-buttons">
-    <a href="/sang/public/user/profil">👤 Mon profil</a>
-    <a href="/sang/public/demande/mesDemandes">📋 Mes demandes</a>
+    <a href="/sang/public/user/profil">Mon profil</a>
+    <a href="/sang/public/demande/mesDemandes">Mes demandes</a>
     <a href="/sang/public/user/logout"> Déconnexion</a>
     <h2>Bienvenue <?= htmlspecialchars($_SESSION['user']['prenom']) ?> (Demandeur)</h2>
   </div>

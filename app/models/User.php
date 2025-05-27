@@ -22,7 +22,7 @@ class User {
             $data['telephone'],
             $data['adresse_ville'],
             $data['adresse_rue'],
-            'demandeur' // 🔐 rôle défini en dur
+            'demandeur' // rôle défini en dur
         ]);
     }
     

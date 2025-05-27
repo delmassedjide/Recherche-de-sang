@@ -8,7 +8,7 @@
     <?php if (!empty($_SESSION['error'])): ?>
         <div class="alert alert-danger"><?= $_SESSION['error']; unset($_SESSION['error']); ?></div>
     <?php endif; ?>
-    <h2>📬 Demandes proches de ce centre</h2>
+    <h2>Demandes proches de ce centre</h2>
 
     <?php if (count($demandes) > 0): ?>
         <table class="table table-bordered mt-4">

@@ -4,6 +4,10 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 include '../app/views/partials/header.php';
 require_once '../app/models/Stocks.php';
+require_once '../app/models/Demande.php';
+$demandesModel = new Demande();
+$nbAttente = $demandesModel->countDemandesEnAttente($_SESSION['user']['num_centre']);
+
 
 $stocksModel = new Stocks();
 $groupes = [
@@ -78,12 +82,21 @@ $current = $_SERVER['REQUEST_URI'];
             <a href="/sang/public/user/profil" class="list-group-item list-group-item-action py-3">
                 <i class="fas fa-id-badge me-2"></i> Profil du centre
             </a>
+            <a href="/sang/public/stock/demandesRecues" class="list-group-item list-group-item-action py-3 d-flex       justify-content-between align-items-center">
+                <span><i class="fas fa-id-badge me-2"></i> Demandes reçues</span>
+                <?php if ($nbAttente > 0): ?>
+                    <span class="badge bg-danger rounded-pill"><?= $nbAttente ?></span>
+                <?php endif; ?>
+            </a>
+            <a href="/sang/public/stock/historique" class="list-group-item list-group-item-action py-3">
+                <i class="fas fa-id-badge me-2"></i> Historique
+            </a>
             <a href="/sang/public/stock/gerer" class="list-group-item list-group-item-action py-3">
                 <i class="fas fa-vial me-2"></i> Mise à jour du stock
             </a>
-            <a href="/sang/public/user/changerMotDePasse" class="list-group-item list-group-item-action py-3">
+            <!-- <a href="/sang/public/user/changerMotDePasse" class="list-group-item list-group-item-action py-3">
                 <i class="fas fa-lock me-2"></i> Changer le mot de passe
-            </a>
+            </a> -->
             <a href="/sang/public/user/logout" class="list-group-item list-group-item-action py-3 text-danger">
                 <i class="fas fa-power-off me-2"></i> Déconnexion
             </a>
@@ -92,6 +105,24 @@ $current = $_SERVER['REQUEST_URI'];
 
     <div class="container-fluid mt-5 px-4 bg-white shadow-sm p-3" style="border-right: 1px solid #eee; margin-left: 50px;border-radius: 8px;">
       <h2 class="mb-4">Informations De Base</h2>
+      <?php
+        $nbValidations = $demandesModel->countDemandesValideesRecentes($_SESSION['user']['num_centre']);
+        ?>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="alert alert-danger d-flex align-items-center justify-content-between">
+                    <span><i class="fas fa-envelope-open-text me-2"></i><strong>Demandes en attente :</strong></span>
+                    <span class="badge bg-danger rounded-pill fs-5"><?= $nbAttente ?></span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="alert alert-success d-flex align-items-center justify-content-between">
+                    <span><i class="fas fa-check-circle me-2"></i><strong>Demandes validées (24h) :</strong></span>
+                    <span class="badge bg-success rounded-pill fs-5"><?= $nbValidations ?></span>
+                </div>
+            </div>
+        </div>
       <div class="row g-4">
           <div class="col-md-3"><div class="stat-card bg-a-plus"><?= $groupes['A+'] ?><br>Poche du Groupe A+</div></div>
           <div class="col-md-3"><div class="stat-card bg-a-moins"><?= $groupes['A-'] ?><br>Poche du Groupe A-</div></div>

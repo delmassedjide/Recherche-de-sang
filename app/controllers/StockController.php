@@ -1,6 +1,7 @@
 <?php
 
 require_once '../app/models/Stocks.php';
+require_once '../app/models/Demande.php';
 
 class StockController extends Controller {
 
@@ -11,7 +12,7 @@ class StockController extends Controller {
         $num_centre = $user['num_centre'];
     
         $stocksModel = new Stocks();
-        $stocks = $stocksModel->getByCentre($num_centre);  // ✅ filtration ici
+        $stocks = $stocksModel->getByCentre($num_centre);  // filtration ici
         $groupes = $stocksModel->getGroupes();
         $centres = $stocksModel->getCentres();
     
@@ -58,19 +59,6 @@ class StockController extends Controller {
         header('Location: /sang/public/stock/gerer');
         exit;
     }
-
-    public function demandesProches() {
-        $this->authorize(['gbs']);
-    
-        $user = $_SESSION['user'];
-        $num_centre = $user['num_centre'];
-    
-        require_once '../app/models/Demande.php';
-        $demandeModel = new Demande();
-        $demandes = $demandeModel->getDemandesProches($num_centre);
-    
-        require_once '../app/views/stock/demandes_proches.php';
-    }
    
     public function valider($id_demande) {
         $this->authorize(['gbs']);
@@ -87,7 +75,7 @@ class StockController extends Controller {
     
         if (!$info) {
             $_SESSION['error'] = "Demande introuvable.";
-            header("Location: /sang/public/stock/demandesProches");
+            header("Location: /sang/public/stock/demandesRecues");
             exit;
         }
     
@@ -99,7 +87,7 @@ class StockController extends Controller {
     
         if (!$stock || $stock['nbr_poche'] < $info['qte']) {
             $_SESSION['error'] = "Stock insuffisant pour valider la demande.";
-            header("Location: /sang/public/stock/demandesProches");
+            header("Location: /sang/public/stock/demandesRecues");
             exit;
         }
     
@@ -115,40 +103,34 @@ class StockController extends Controller {
         $stmt->execute([$id_demande]);
     
         $_SESSION['success'] = "Demande validée avec succès.";
-        header("Location: /sang/public/stock/demandesProches");
+        header("Location: /sang/public/stock/demandesRecues");
         exit;
     }
     
     public function historique() {
-        $this->authorize(['gbs']);
-    
-        require_once '../app/models/Demande.php';
-        $model = new Demande();
-    
-        $num_centre = $_SESSION['user']['num_centre'];
-        $demandes = $model->getHistoriqueGbs($num_centre);
-    
-        require_once '../app/views/stock/historique.php';
+    $this->authorize(['gbs']);
+
+    require_once '../app/models/Demande.php';
+    $model = new Demande();
+
+    $num_centre = $_SESSION['user']['num_centre'];
+    $periode = $_GET['periode'] ?? 'all';
+
+    $demandes = $model->getHistoriqueGbs($num_centre, $periode);
+
+    require_once '../app/views/stock/historique.php';
     }
 
     public function demandesRecues() {
-        $this->authorize(['gbs']);
-        $num_centre = $_SESSION['user']['num_centre'];
+    $this->authorize(['gbs']);
 
-        $demandeModel = new Demande();
-        $demandes = $demandeModel->getDemandesParCentre($num_centre);
+    require_once '../app/models/Demande.php';
+    $demandeModel = new Demande();
 
-        require_once '../app/views/stock/demandes_reçues.php';
-    }
+    $num_centre = $_SESSION['user']['num_centre'];
+    $demandes = $demandeModel->getDemandesRecues($num_centre); // méthode à implémenter si ce n’est pas encore fait
 
-    public function validerDemande($id_demande) {
-        $this->authorize(['gbs']);
-
-        $demandeModel = new Demande();
-        $demandeModel->validerDemande($id_demande);
-
-        header("Location: /sang/public/stock/demandesRecues");
-        exit;
-    }
+    require_once '../app/views/stock/demandesRecues.php';
+}
     
 }

@@ -22,7 +22,7 @@ class AdminController extends Controller {
     
         $userModel = new User();
         
-        // ✅ Mise à jour du rôle et éventuellement du centre si GBS
+        // Mise à jour du rôle et éventuellement du centre si GBS
         if ($role === 'gbs' && $num_centre) {
             $userModel->updateRole($id, $role, $num_centre);
         } else {

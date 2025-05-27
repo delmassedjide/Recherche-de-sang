@@ -15,13 +15,13 @@ class RechercheController extends Controller {
     public function resultats() {
         $this->authorize(['demandeur']);
     
-        // ✅ récupérer depuis $_POST et non $_GET
+        // récupérer depuis $_POST et non $_GET
         $groupe = $_POST['ref_sang'] ?? '';
     
         $stockModel = new Stocks();
         $centres = $stockModel->rechercherCentresDisponibles($groupe);
     
-        // ✅ On transmet $groupe à la vue
+        // On transmet $groupe à la vue
         $_POST['ref_sang'] = $groupe;
     
         require_once '../app/views/recherche/resultats.php';
@@ -29,6 +29,7 @@ class RechercheController extends Controller {
 
     public function paiement() {
         $this->authorize(['demandeur']);
+        $qte = $_GET['qte'] ?? 1;
         require_once '../app/views/recherche/paiement.php';
     }
 
@@ -62,34 +63,35 @@ class RechercheController extends Controller {
     }
 
     public function confirmer() {
-    $this->authorize(['demandeur']);
+        $this->authorize(['demandeur']);
 
-    // Vérification des paramètres GET
-    $ref_sang = $_GET['ref_sang'] ?? null;
-    $num_centre = $_GET['num_centre'] ?? null;
-    $qte = $_GET['qte'] ?? null;
-    $montant = $_GET['montant'] ?? null;
-    $transaction_id = $_GET['transaction_id'] ?? null;
+        // Vérification des paramètres GET
+        $ref_sang = $_GET['ref_sang'] ?? null;
+        $num_centre = $_GET['num_centre'] ?? null;
+        $qte = $_GET['qte'] ?? null;
+        $montant = $_GET['montant'] ?? null;
+        $transaction_id = $_GET['transaction_id'] ?? null;
 
-    if (!$ref_sang || !$num_centre || !$qte || !$montant || !$transaction_id) {
-        die("Paramètres manquants pour valider la demande.");
+        if (!$ref_sang || !$num_centre || !$qte || !$montant || !$transaction_id) {
+            die("Paramètres manquants pour valider la demande.");
+        }
+
+        $id_demandeur = $_SESSION['user']['id'];
+        $db = Database::getConnection();
+
+        // Enregistrement de la demande principale
+        $stmt = $db->prepare("INSERT INTO demandes (libelle, id_demandeur, date_demande, statut) VALUES (?, ?, CURDATE(), 'en attente')");
+        $stmt->execute(["Demande FedaPay #$transaction_id", $id_demandeur]);
+
+        $id_demande = $db->lastInsertId();
+
+        // Enregistrement des détails de la demande
+        $stmt = $db->prepare("INSERT INTO demander (id_demande, ref_sang, qte, num_centre, montant) VALUES (?, ?, ?, ?, ?)");
+        $stmt->execute([$id_demande, $ref_sang, $qte, $num_centre, $montant]);
+
+        // Redirection vers les demandes du demandeur
+        header("Location: /sang/public/demande/mesDemandes");
+        exit;
     }
 
-    $id_demandeur = $_SESSION['user']['id'];
-    $db = Database::getConnection();
-
-    // Enregistrement de la demande principale
-    $stmt = $db->prepare("INSERT INTO demandes (libelle, id_demandeur, date_demande, statut) VALUES (?, ?, CURDATE(), 'en attente')");
-    $stmt->execute(["Demande FedaPay #$transaction_id", $id_demandeur]);
-
-    $id_demande = $db->lastInsertId();
-
-    // Enregistrement des détails de la demande
-    $stmt = $db->prepare("INSERT INTO demander (id_demande, ref_sang, qte, num_centre, montant) VALUES (?, ?, ?, ?, ?)");
-    $stmt->execute([$id_demande, $ref_sang, $qte, $num_centre, $montant]);
-
-    // Redirection vers les demandes du demandeur
-    header("Location: /sang/public/demande/mesDemandes");
-    exit;
-}
 }
