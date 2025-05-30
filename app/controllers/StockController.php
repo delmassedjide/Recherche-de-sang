@@ -8,9 +8,8 @@ class StockController extends Controller {
     public function gerer() {
         $this->authorize(['gbs']);
     
-        $user = $_SESSION['user'];
-        $num_centre = $user['num_centre'];
-    
+        $num_centre = $_SESSION['user']['num_centre'];
+        
         $stocksModel = new Stocks();
         $stocks = $stocksModel->getByCentre($num_centre);  // filtration ici
         $groupes = $stocksModel->getGroupes();

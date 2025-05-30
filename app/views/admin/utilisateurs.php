@@ -7,12 +7,6 @@ $pageTitle = 'Liste des utilisateurs';
 include '../app/views/partials/header.php';
 ?>
 
-<!--
-    ░░  Feuille de style spécifique à la page
-    ———————————————————————————————————————————————————————————————————————
-    ► Réutilise la palette rouge/bleu/gris clair des autres écrans
-    ► Ajoute carte filtre et tableau arrondi avec ombre
--->
 <style>
     :root {
         --red-blood: #ef233c;
@@ -35,7 +29,6 @@ include '../app/views/partials/header.php';
         margin-top: 2rem;
     }
 
-    /* ---------- Carte filtre ------------- */
     .filter-card {
         background: #fff;
         border-radius: var(--radius-lg);
@@ -61,7 +54,6 @@ include '../app/views/partials/header.php';
         border-color: var(--red-blood-dark);
     }
 
-    /* ---------- Tableau ------------- */
     .table-wrapper {
         border-radius: var(--radius-lg);
         overflow: hidden;
@@ -95,7 +87,6 @@ include '../app/views/partials/header.php';
     .user-table tbody tr:nth-child(odd)  { background: #f9fbff; }
     .user-table tbody tr:last-child td { border-bottom: none; }
 
-    /* ---------- Boutons ------------- */
     .btn-brand {
         background: var(--red-blood);
         border-color: var(--red-blood);
@@ -115,21 +106,6 @@ include '../app/views/partials/header.php';
     .btn-teal:hover { background: #25b0a6; border-color:#25b0a6; }
 </style>
 
-<!-- ================================ CARTE FILTRE ================================== -->
-<div class="filter-card">
-    <form method="GET" action="/sang/public/admin/utilisateurs" class="d-flex align-items-stretch">
-        <label for="role" class="visually-hidden">Filtrer par rôle</label>
-        <select name="role" id="role" class="form-select">
-            <option value="">Tous les rôles</option>
-            <option value="admin" <?= isset($_GET['role']) && $_GET['role'] === 'admin' ? 'selected' : '' ?>>Admin</option>
-            <option value="gbs" <?= isset($_GET['role']) && $_GET['role'] === 'gbs' ? 'selected' : '' ?>>GBS</option>
-            <option value="demandeur" <?= isset($_GET['role']) && $_GET['role'] === 'demandeur' ? 'selected' : '' ?>>Demandeur</option>
-        </select>
-        <button class="btn btn-filter px-4">Filtrer</button>
-    </form>
-</div>
-
-<!-- ================================ LISTE UTILISATEURS ============================== -->
 <div class="container-xxl">
     <h2 class="mb-3">👥 Liste des utilisateurs</h2>
     <div class="table-wrapper">
@@ -145,43 +121,53 @@ include '../app/views/partials/header.php';
                 </tr>
             </thead>
             <tbody>
-        <?php foreach ($utilisateurs as $u): ?>
-            <tr>
-                <td><?= htmlspecialchars($u['nom'].' '.$u['prenom']) ?></td>
-                <td><?= htmlspecialchars($u['email']) ?></td>
-                <td><?= htmlspecialchars($u['telephone']) ?></td>
+            <?php foreach ($utilisateurs as $u): ?>
+                <tr>
+                    <td><?= htmlspecialchars($u['nom'].' '.$u['prenom']) ?></td>
+                    <td><?= htmlspecialchars($u['email']) ?></td>
+                    <td><?= htmlspecialchars($u['telephone']) ?></td>
+                    <td>
+                        <form method="POST" action="/sang/public/admin/modifierRole/<?= $u['id'] ?>" class="d-flex justify-content-center gap-2 flex-wrap">
+                            <select name="role" class="form-select form-select-sm" style="max-width:140px;" onchange="toggleCentreInput(this, 'centre-<?= $u['id'] ?>')">
+                                <option value="demandeur" <?= $u['role']==='demandeur'?'selected':'';?>>demandeur</option>
+                                <option value="gbs" <?= $u['role']==='gbs'?'selected':'';?>>gbs</option>
+                                <option value="admin" <?= $u['role']==='admin'?'selected':'';?>>admin</option>
+                            </select>
+                    </td>
+                    <td>
+                        <div id="centre-<?= $u['id'] ?>" class="d-flex justify-content-center gap-2 flex-wrap">
+                            <?php if ($u['role'] === 'gbs'): ?>
+                                <select name="num_centre" class="form-select form-select-sm" style="max-width:130px;" required>
+                                <option value="">-- Centre --</option>
+                                <?php foreach ($centres as $centre): ?>
+                                    <option value="<?= $centre['num_centre'] ?>" 
+                                        <?= $u['num_centre'] === $centre['num_centre'] ? 'selected' : '' ?>>
+                                        <?= $centre['num_centre'] ?> (<?= $centre['nom_centre'] ?>)
+                                    </option>
+                                <?php endforeach; ?>
+                                </select>
 
-                <!-- ===== Rôle (avec formulaire) ================================== -->
-                <td>
-                    <form method="POST" action="/sang/public/admin/modifierRole/<?= $u['id'] ?>" class="d-flex justify-content-center gap-2">
-                        <select name="role" class="form-select form-select-sm" style="max-width:140px;" onchange="toggleCentreInput(this, 'centre-<?= $u['id'] ?>')">
-                            <option value="demandeur" <?= $u['role']==='demandeur'?'selected':'';?>>demandeur</option>
-                            <option value="gbs" <?= $u['role']==='gbs'?'selected':'';?>>gbs</option>
-                            <option value="admin" <?= $u['role']==='admin'?'selected':'';?>>admin</option>
-                        </select>
-                </td>
+                                <input type="text" name="latitude" value="<?= $u['latitude'] ?? '' ?>" class="form-control form-control-sm" placeholder="Latitude" style="max-width:100px;" required>
+                                <input type="text" name="longitude" value="<?= $u['longitude'] ?? '' ?>" class="form-control form-control-sm" placeholder="Longitude" style="max-width:100px;" required>
+                            <?php endif; ?>
 
-                <!-- ===== Centre affiché uniquement si rôle GBS ==================== -->
-                <td>
-                    <div id="centre-<?= $u['id'] ?>" class="d-flex justify-content-center gap-2">
-                        <?php if ($u['role'] === 'gbs'): ?>
-                            <input type="text" name="num_centre" class="form-control form-control-sm" value="<?= htmlspecialchars($u['num_centre'] ?? '') ?>" placeholder="ex: CT001" style="max-width:110px;" required>
-                        <?php endif; ?>
-                    </div>
-                </td>
-
-                <!-- ===== Action (bouton enregistrer + suppression) ================ -->
-                <td class="d-flex justify-content-center gap-2">
+                        </div>
+                    </td>
+                    <td class="d-flex justify-content-center gap-2">
                         <button class="btn btn-sm btn-teal">Enregistrer</button>
                         <a href="/sang/public/admin/supprimer/<?= $u['id'] ?>" class="btn btn-sm btn-brand" onclick="return confirm('Confirmer la suppression ?');">Supprimer</a>
-                    </form>
-                </td>
-            </tr>
-        <?php endforeach; ?>
-        </tbody>
+                        </form>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+    <div class="text-center my-5">
+        <a href="/sang/public/home" class="btn btn-outline-secondary px-4">Retour</a>
+    </div>
+</div>
 
-        <!-- Script JavaScript pour afficher dynamiquement l’input "num_centre" -->
-           <!-- Script JavaScript pour afficher dynamiquement l’input "num_centre" -->
 <script>
 function toggleCentreInput(selectElem, containerId) {
     const container = document.getElementById(containerId);
@@ -189,20 +175,26 @@ function toggleCentreInput(selectElem, containerId) {
 
     if (selectElem.value === 'gbs') {
         container.innerHTML = `
-            <input type="text" name="num_centre" 
-                class="form-control form-control-sm" 
-                placeholder="ex: CT001" style="max-width:110px;" required>`;
+            <input type="text" name="num_centre" placeholder="ex: CT001" class="form-control form-control-sm" style="max-width:100px;" required>
+            <input type="text" name="latitude" placeholder="Latitude" class="form-control form-control-sm" style="max-width:100px;" required>
+            <input type="text" name="longitude" placeholder="Longitude" class="form-control form-control-sm" style="max-width:100px;" required>
+        `;
     } else {
         container.innerHTML = '';
     }
 }
 </script>
-        </table>
-    </div>
 
-    <div class="text-center my-5">
-        <a href="/sang/public/home" class="btn btn-outline-secondary px-4">Retour</a>
-    </div>
-</div>
+<script>
+function afficherCoordonnees(select) {
+    const form = select.closest('form');
+    const coords = form.querySelector('.coords');
+    if (select.value === 'gbs') {
+        coords.style.display = 'block';
+    } else {
+        coords.style.display = 'none';
+    }
+}
+</script>
 
 <?php include '../app/views/partials/footer.php'; ?>

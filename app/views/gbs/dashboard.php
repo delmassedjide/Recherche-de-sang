@@ -10,17 +10,19 @@ $nbAttente = $demandesModel->countDemandesEnAttente($_SESSION['user']['num_centr
 
 
 $stocksModel = new Stocks();
+$num_centre = $_SESSION['user']['num_centre'];
 $groupes = [
-    'A+' => $stocksModel->countByGroupPrefix('A+'),
-    'A-' => $stocksModel->countByGroupPrefix('A-'),
-    'B+' => $stocksModel->countByGroupPrefix('B+'),
-    'B-' => $stocksModel->countByGroupPrefix('B-'),
-    'O+' => $stocksModel->countByGroupPrefix('O+'),
-    'O-' => $stocksModel->countByGroupPrefix('O-'),
-    'AB+' => $stocksModel->countByGroupPrefix('AB+'),
-    'AB-' => $stocksModel->countByGroupPrefix('AB-'),
+    'A+' => $stocksModel->countByGroupPrefixForCentre('A+', $num_centre),
+    'A-' => $stocksModel->countByGroupPrefixForCentre('A-', $num_centre),
+    'B+' => $stocksModel->countByGroupPrefixForCentre('B+', $num_centre),
+    'B-' => $stocksModel->countByGroupPrefixForCentre('B-', $num_centre),
+    'O+' => $stocksModel->countByGroupPrefixForCentre('O+', $num_centre),
+    'O-' => $stocksModel->countByGroupPrefixForCentre('O-', $num_centre),
+    'AB+' => $stocksModel->countByGroupPrefixForCentre('AB+', $num_centre),
+    'AB-' => $stocksModel->countByGroupPrefixForCentre('AB-', $num_centre),
 ];
-$total = $stocksModel->countTotal();
+$total = $stocksModel->countTotalByCentre($num_centre);
+
 $user = $_SESSION['user'] ?? null;
 $current = $_SERVER['REQUEST_URI'];
 ?>

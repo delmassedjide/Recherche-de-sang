@@ -8,16 +8,16 @@ class Stocks {
     }
 
     public function getByCentre($num_centre) {
-        $stmt = $this->db->prepare("
-            SELECT s.id, s.nbr_poche, g.ref_sang, c.nom_centre
-            FROM stocks s
-            JOIN groupes_sanguins g ON s.ref_sang = g.ref_sang
-            JOIN centres c ON s.num_centre = c.num_centre
-            WHERE s.num_centre = ?
-        ");
-        $stmt->execute([$num_centre]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $stmt = $this->db->prepare("
+        SELECT s.*, c.nom_centre 
+        FROM stocks s 
+        JOIN centres c ON s.num_centre = c.num_centre 
+        WHERE s.num_centre = ?
+    ");
+    $stmt->execute([$num_centre]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
 
     public function getById($id) {
         $stmt = $this->db->prepare("SELECT * FROM stocks WHERE id = ?");
@@ -70,21 +70,35 @@ class Stocks {
     $stmt = $this->db->prepare("
         SELECT c.nom, c.adresse, c.latitude, c.longitude, c.num_centre, s.nbr_poche, s.ref_sang
         FROM stocks s
-        JOIN centres c ON c.num_centre = s.num_centre
+        JOIN centres c ON TRIM(c.num_centre) = TRIM(s.num_centre)
         WHERE s.ref_sang = ? AND s.nbr_poche > 0
     ");
     $stmt->execute([$groupe]);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function countByGroupPrefix($prefix) {
-        $stmt = $this->db->prepare("SELECT SUM(nbr_poche) FROM stocks WHERE ref_sang LIKE ?");
-        $stmt->execute(["$prefix%"]);
-        return $stmt->fetchColumn() ?: 0;
+
+    // public function countByGroupPrefix($prefix) {
+    //     $stmt = $this->db->prepare("SELECT SUM(nbr_poche) FROM stocks WHERE ref_sang LIKE ?");
+    //     $stmt->execute(["$prefix%"]);
+    //     return $stmt->fetchColumn() ?: 0;
+    // }
+
+    // public function countTotal() {
+    //     $stmt = $this->db->query("SELECT SUM(nbr_poche) FROM stocks");
+    //     return $stmt->fetchColumn() ?: 0;
+    // }
+
+    public function countByGroupPrefixForCentre($prefix, $num_centre) {
+    $stmt = $this->db->prepare("SELECT SUM(nbr_poche) FROM stocks WHERE ref_sang LIKE ? AND num_centre = ?");
+    $stmt->execute(["$prefix%", $num_centre]);
+    return $stmt->fetchColumn() ?: 0;
     }
 
-    public function countTotal() {
-        $stmt = $this->db->query("SELECT SUM(nbr_poche) FROM stocks");
-        return $stmt->fetchColumn() ?: 0;
+    public function countTotalByCentre($num_centre) {
+    $stmt = $this->db->prepare("SELECT SUM(nbr_poche) FROM stocks WHERE num_centre = ?");
+    $stmt->execute([$num_centre]);
+    return $stmt->fetchColumn() ?: 0;
     }
+
 }

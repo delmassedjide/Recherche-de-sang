@@ -40,24 +40,24 @@ class User {
     }
 
     public function getAll($role = null) {
-        if ($role && in_array($role, ['admin', 'gbs', 'demandeur'])) {
-            $stmt = $this->db->prepare("
-                SELECT id, nom, prenom, email, role, telephone, num_centre
-                FROM users
-                WHERE role = ?
-                ORDER BY nom ASC
-            ");
-            $stmt->execute([$role]);
-        } else {
-            $stmt = $this->db->query("
-                SELECT id, nom, prenom, email, role, telephone, num_centre
-                FROM users
-                ORDER BY role ASC, nom ASC
-            ");
-        }
-    
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }    
+    if ($role && in_array($role, ['admin', 'gbs', 'demandeur'])) {
+        $stmt = $this->db->prepare("
+            SELECT id, nom, prenom, email, role, telephone, num_centre, latitude, longitude
+            FROM users
+            WHERE role = ?
+            ORDER BY nom ASC
+        ");
+        $stmt->execute([$role]);
+    } else {
+        $stmt = $this->db->query("
+            SELECT id, nom, prenom, email, role, telephone, num_centre, latitude, longitude
+            FROM users
+            ORDER BY role ASC, nom ASC
+        ");
+    }
+
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 
     public function updateRole($id, $role, $num_centre = null) {
         $db = Database::getConnection();
@@ -97,5 +97,22 @@ class User {
         $stmt = $this->db->prepare("UPDATE users SET num_centre = ? WHERE id = ?");
         $stmt->execute([$num_centre, $id]);
     }
-    
+
+    public function updateRoleAndCentre($id, $role, $num_centre = null, $latitude = null, $longitude = null) {
+    $sql = "UPDATE users SET role = :role, num_centre = :num_centre, latitude = :latitude, longitude = :longitude WHERE id = :id";
+    $stmt = $this->db->prepare($sql);
+    $stmt->execute([
+        'role' => $role,
+        'num_centre' => $num_centre,
+        'latitude' => $latitude,
+        'longitude' => $longitude,
+        'id' => $id
+    ]);
+    }
+
+    public function updateCoordonnees($id, $latitude, $longitude) {
+    $stmt = $this->db->prepare("UPDATE users SET latitude = ?, longitude = ? WHERE id = ?");
+    $stmt->execute([$latitude, $longitude, $id]);
+    }
+
 }
