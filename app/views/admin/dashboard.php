@@ -8,10 +8,10 @@ $stocksModel = new Stocks();
 // Statistiques dynamiques
 $nb_centres = count($stocksModel->getCentres());
 $groupes = [
-    'A' => $stocksModel->countByGroupPrefix('A'),
-    'B' => $stocksModel->countByGroupPrefix('B'),
-    'O' => $stocksModel->countByGroupPrefix('O'),
-    'AB' => $stocksModel->countByGroupPrefix('AB'),
+    'A' => $stocksModel->sumPochesByGroupPrefix('A'),
+    'B' => $stocksModel->sumPochesByGroupPrefix('B'),
+    'O' => $stocksModel->sumPochesByGroupPrefix('O'),
+    'AB' => $stocksModel->sumPochesByGroupPrefix('AB'),
 ];
 $total_poches = $stocksModel->countTotal();
 ?>
@@ -65,9 +65,9 @@ $total_poches = $stocksModel->countTotal();
         <a href="/sang/public/admin/utilisateurs" class="list-group-item list-group-item-action py-3">
             <i class="fas fa-hospital me-2"></i> Liste des centres
         </a>
-        <a href="/sang/public/user/changerMotDePasse" class="list-group-item list-group-item-action py-3">
+        <!-- <a href="/sang/public/user/changerMotDePasse" class="list-group-item list-group-item-action py-3">
             <i class="fas fa-lock me-2"></i> Changer le mot de passe
-        </a>
+        </a> -->
         <a href="/sang/public/user/logout" class="list-group-item list-group-item-action py-3 text-danger">
             <i class="fas fa-power-off me-2"></i> Déconnexion
         </a>

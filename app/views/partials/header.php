@@ -30,7 +30,7 @@ $current = $_SERVER['REQUEST_URI'];
 
             <?php if ($user): ?>
                 <?php if ($user['role'] === 'demandeur'): ?>
-                    <li class="nav-item"><a class="nav-link <?= str_contains($current, '/demande/create') ? 'active' : '' ?>" href="/sang/public/demande/create">Nouvelle demande</a></li>
+                    <!-- <li class="nav-item"><a class="nav-link <?= str_contains($current, '/demande/create') ? 'active' : '' ?>" href="/sang/public/demande/create">Nouvelle demande</a></li> -->
                     <li class="nav-item"><a class="nav-link <?= str_contains($current, '/demande/mesDemandes') ? 'active' : '' ?>" href="/sang/public/demande/mesDemandes">Mes demandes</a></li>
                 <?php elseif ($user['role'] === 'gbs'): ?>
                     <!-- <li class="nav-item"><a class="nav-link <?= str_contains($current, '/stock/gerer') ? 'active' : '' ?>" href="/sang/public/stock/gerer">Gestion des stocks</a></li>

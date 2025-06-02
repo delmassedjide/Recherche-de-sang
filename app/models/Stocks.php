@@ -78,17 +78,26 @@ class Stocks {
     }
 
 
-    // public function countByGroupPrefix($prefix) {
-    //     $stmt = $this->db->prepare("SELECT SUM(nbr_poche) FROM stocks WHERE ref_sang LIKE ?");
-    //     $stmt->execute(["$prefix%"]);
-    //     return $stmt->fetchColumn() ?: 0;
-    // }
+    public function countByGroupPrefix($prefix) {
+    $stmt = $this->db->prepare("
+        SELECT COUNT(*) FROM stocks 
+        WHERE ref_sang LIKE ? 
+    ");
+    $stmt->execute([$prefix . '%']);
+    return $stmt->fetchColumn();
+    }
 
-    // public function countTotal() {
-    //     $stmt = $this->db->query("SELECT SUM(nbr_poche) FROM stocks");
-    //     return $stmt->fetchColumn() ?: 0;
-    // }
-
+    public function countTotal() {
+    $stmt = $this->db->query("SELECT SUM(nbr_poche) FROM stocks");
+    return $stmt->fetchColumn() ?: 0;
+    }
+    
+    public function sumPochesByGroupPrefix($prefix) {
+    $stmt = $this->db->prepare("SELECT SUM(nbr_poche) FROM stocks WHERE ref_sang LIKE ?");
+    $stmt->execute([$prefix . '%']);
+    return $stmt->fetchColumn() ?: 0;
+    }
+    
     public function countByGroupPrefixForCentre($prefix, $num_centre) {
     $stmt = $this->db->prepare("SELECT SUM(nbr_poche) FROM stocks WHERE ref_sang LIKE ? AND num_centre = ?");
     $stmt->execute(["$prefix%", $num_centre]);
