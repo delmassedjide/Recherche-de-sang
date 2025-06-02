@@ -59,6 +59,10 @@ class User {
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function getLastInsertedId() {
+    return $this->db->lastInsertId();
+    }
+
     public function updateRole($id, $role, $num_centre = null) {
         $db = Database::getConnection();
     

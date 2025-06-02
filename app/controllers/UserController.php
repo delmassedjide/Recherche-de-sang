@@ -26,11 +26,19 @@ class UserController extends Controller {
                 'adresse_ville' => $_POST['adresse_ville'],
                 'adresse_rue' => $_POST['adresse_rue']
             ]);
-    
-            // Redirection après inscription
+        
+        // Ajout dans demandeurs si role = demandeur
+        if ($_POST['role'] === 'demandeur') {
+            $id = $user->getLastInsertedId(); // méthode à créer si elle n'existe pas
+
+            $stmt = Database::getConnection()->prepare("INSERT INTO demandeurs (id) VALUES (?)");
+            $stmt->execute([$id]);
+        }
+
+        // Redirection après inscription
             header('Location: /sang/public/user/login');
             exit;
-        }
+    }
     }
     
 

@@ -9,7 +9,6 @@
         body {
             background-color: #f9f9f9;
             font-family: 'Segoe UI', sans-serif;
-            height: 100%;
         }
         .register-container {
             max-width: 500px;
@@ -42,6 +41,8 @@
     <div class="register-container">
         <h2 class="form-title">Créer un compte</h2>
         <form action="/sang/public/user/store" method="post">
+            <input type="hidden" name="role" value="demandeur">
+
             <div class="mb-3">
                 <label for="nom" class="form-label">Nom</label>
                 <input type="text" name="nom" class="form-control" id="nom" required>
@@ -59,16 +60,16 @@
                 <input type="password" name="password" id="password" class="form-control" required>
             </div>
             <div class="mb-3">
-                <label for="email" class="form-label">Téléphone</label>
-                <input name="telephone" class="form-control" type="texte" id="telephone" required>
+                <label for="telephone" class="form-label">Téléphone</label>
+                <input name="telephone" class="form-control" type="text" id="telephone" required>
             </div>
             <div class="mb-3">
-                <label for="email" class="form-label">Ville</label>
-                <input name="adresse_ville" class="form-control" type="texte" id="adresse_ville" required>
+                <label for="adresse_ville" class="form-label">Ville</label>
+                <input name="adresse_ville" class="form-control" type="text" id="adresse_ville" required>
             </div>
             <div class="mb-3">
-                <label for="email" class="form-label">Rue</label>
-                <input name="adresse_rue" class="form-control" type="texte" id="adresse_rue" required>
+                <label for="adresse_rue" class="form-label">Rue</label>
+                <input name="adresse_rue" class="form-control" type="text" id="adresse_rue" required>
             </div>
             <button type="submit" class="btn btn-primary w-100">S'inscrire</button>
         </form>
