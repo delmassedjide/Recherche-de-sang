@@ -41,7 +41,7 @@
 <body>
     <div class="register-container">
         <h2 class="form-title">Créer un compte</h2>
-        <form action="/sang/public/user/register" method="post">
+        <form action="/sang/public/user/store" method="post">
             <div class="mb-3">
                 <label for="nom" class="form-label">Nom</label>
                 <input type="text" name="nom" class="form-control" id="nom" required>
