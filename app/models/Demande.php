@@ -37,19 +37,29 @@ class Demande {
         $this->db->commit();
     }
 
-    public function getDemandesByUser($idUser, $limit = 5, $offset = 0) {
-        $stmt = $this->db->prepare("SELECT d.id_demande, d.libelle, d.date_demande, ds.qte, gs.ref_sang
-            FROM demandes d
-            JOIN demander ds ON ds.id_demande = d.id_demande
-            JOIN groupes_sanguins gs ON gs.ref_sang = ds.ref_sang
-            WHERE d.id_demandeur = ?
-            ORDER BY d.date_demande DESC
-            LIMIT ? OFFSET ?");
-        $stmt->bindValue(1, $idUser, PDO::PARAM_INT);
-        $stmt->bindValue(2, $limit, PDO::PARAM_INT);
-        $stmt->bindValue(3, $offset, PDO::PARAM_INT);
-        $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    public function getDemandesByUser($id_demandeur, $limit = 5, $offset = 0) {
+    $db = Database::getConnection();
+
+    // Sécurisation manuelle des entiers
+    $limit = (int) $limit;
+    $offset = (int) $offset;
+
+    // Intégration directe des entiers dans la requête SQL
+    $sql = "
+        SELECT d.id_demande, d.date_demande, d.libelle, d.statut, 
+               dm.ref_sang, dm.qte, c.nom AS centre
+        FROM demandes d
+        JOIN demander dm ON d.id_demande = dm.id_demande
+        JOIN centres c ON c.num_centre = dm.num_centre
+        WHERE d.id_demandeur = ?
+        ORDER BY d.date_demande DESC
+        LIMIT $limit OFFSET $offset
+    ";
+
+    $stmt = $db->prepare($sql);
+    $stmt->execute([$id_demandeur]);
+
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function countDemandesByUser($idUser) {

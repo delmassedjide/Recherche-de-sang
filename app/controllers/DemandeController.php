@@ -94,23 +94,32 @@ class DemandeController extends Controller {
         $db = Database::getConnection();
     
         // Récupérer la demande
-        $stmt = $db->prepare("SELECT ref_sang, qte FROM demander WHERE id_demande = ? AND num_centre = ?");
-        $stmt->execute([$id_demande, $num_centre]);
-        $donnee = $stmt->fetch(PDO::FETCH_ASSOC);
-    
-        if ($donnee) {
-            // Met à jour le stock (décrémenter)
-            $stmtStock = $db->prepare("UPDATE stocks SET nbr_poche = nbr_poche - ? 
-                                       WHERE num_centre = ? AND ref_sang = ? AND nbr_poche >= ?");
-            $stmtStock->execute([$donnee['qte'], $num_centre, $donnee['ref_sang'], $donnee['qte']]);
-    
-            if ($stmtStock->rowCount() > 0) {
-                // Statut validé
-                $stmt = $db->prepare("UPDATE demandes SET statut = 'validée', date_validation = CURDATE() 
-                                      WHERE id_demande = ?");
-                $stmt->execute([$id_demande]);
-            }
-        }
+            $stmt = $db->prepare("
+        SELECT d.ref_sang, d.qte, d.num_centre
+        FROM demander d
+        WHERE d.id_demande = ?
+    ");
+    $stmt->execute([$id_demande]);
+    $donnee = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($donnee && $donnee['num_centre'] === $_SESSION['user']['num_centre']) {
+        // Décrémentation du stock
+        $stmtStock = $db->prepare("UPDATE stocks SET nbr_poche = nbr_poche - ? 
+                                WHERE num_centre = ? AND ref_sang = ? AND nbr_poche >= ?");
+        $stmtStock->execute([
+            $donnee['qte'],
+            $donnee['num_centre'],
+            $donnee['ref_sang'],
+            $donnee['qte']
+    ]);
+
+    if ($stmtStock->rowCount() > 0) {
+        // Mise à jour du statut
+        $stmt = $db->prepare("UPDATE demandes SET statut = 'validée', date_validation = CURDATE()
+                              WHERE id_demande = ?");
+        $stmt->execute([$id_demande]);
+    }
+}
     
         header("Location: /sang/public/stock/demandesProches");
         exit;
